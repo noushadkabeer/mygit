@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://activiti.org/bpmn20" id="adhoc-definitions">
+  <process id="activitiAdhocTimer" name="Activiti Timer Adhoc" isExecutable="true">
+    <startEvent id="start" activiti:formKey="wf:submitAdhocTask"></startEvent>
+    <sequenceFlow id="flow1" sourceRef="start" targetRef="adhocTask"></sequenceFlow>
+    <userTask id="adhocTask" name="Urgent task" activiti:assignee="${bpm_assignee.properties.userName}" activiti:formKey="wf:adhocTask">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[if (typeof bpm_workflowDueDate != 'undefined') task.setVariableLocal('bpm_dueDate', bpm_workflowDueDate);
+                      if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <boundaryEvent id="timer" name="testTimer" attachedToRef="adhocTask" cancelActivity="true">
+      <timerEventDefinition>
+        <timeDuration>PT1M</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="flow2" sourceRef="adhocTask" targetRef="taskDone"></sequenceFlow>
+    <userTask id="taskDone" name="Urgent task completed on time" activiti:assignee="${initiator.properties.userName}" activiti:formKey="wf:completedAdhocTask">
+      <documentation>The urgent task was completed on time by ${bpm_assignee.properties.userName}.</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[if (typeof bpm_workflowDueDate != 'undefined') task.setVariableLocal('bpm_dueDate', bpm_workflowDueDate);
+                        if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="taskExpired" name="Urgent task expired" activiti:assignee="${initiator.properties.userName}" activiti:formKey="wf:completedAdhocTask">
+      <documentation>The urgent task was NOT completed on time by ${bpm_assignee.properties.userName}.</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[if (typeof bpm_workflowDueDate != 'undefined') task.setVariableLocal('bpm_dueDate', bpm_workflowDueDate);
+                        if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow3" sourceRef="taskDone" targetRef="theEnd"></sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="timer" targetRef="taskExpired"></sequenceFlow>
+    <sequenceFlow id="veryLongTimer" sourceRef="taskExpired" targetRef="theEnd"></sequenceFlow>
+    <endEvent id="theEnd"></endEvent>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_activitiAdhocTimer">
+    <bpmndi:BPMNPlane bpmnElement="activitiAdhocTimer" id="BPMNPlane_activitiAdhocTimer">
+      <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
+        <omgdc:Bounds height="35.0" width="35.0" x="0.0" y="17.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="adhocTask" id="BPMNShape_adhocTask">
+        <omgdc:Bounds height="60.0" width="100.0" x="80.0" y="2.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="timer" id="BPMNShape_timer">
+        <omgdc:Bounds height="30.0" width="30.0" x="145.0" y="47.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="taskDone" id="BPMNShape_taskDone">
+        <omgdc:Bounds height="60.0" width="100.0" x="230.0" y="0.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="taskExpired" id="BPMNShape_taskExpired">
+        <omgdc:Bounds height="60.0" width="100.0" x="230.0" y="160.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="theEnd" id="BPMNShape_theEnd">
+        <omgdc:Bounds height="35.0" width="35.0" x="380.0" y="95.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="35.0" y="34.0"></omgdi:waypoint>
+        <omgdi:waypoint x="42.0" y="32.0"></omgdi:waypoint>
+        <omgdi:waypoint x="42.0" y="32.0"></omgdi:waypoint>
+        <omgdi:waypoint x="80.0" y="32.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="180.0" y="32.0"></omgdi:waypoint>
+        <omgdi:waypoint x="192.0" y="32.0"></omgdi:waypoint>
+        <omgdi:waypoint x="192.0" y="30.0"></omgdi:waypoint>
+        <omgdi:waypoint x="230.0" y="30.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="330.0" y="30.0"></omgdi:waypoint>
+        <omgdi:waypoint x="342.0" y="30.0"></omgdi:waypoint>
+        <omgdi:waypoint x="342.0" y="110.0"></omgdi:waypoint>
+        <omgdi:waypoint x="380.0" y="112.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="160.0" y="77.0"></omgdi:waypoint>
+        <omgdi:waypoint x="160.0" y="230.0"></omgdi:waypoint>
+        <omgdi:waypoint x="280.0" y="230.0"></omgdi:waypoint>
+        <omgdi:waypoint x="280.0" y="220.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="veryLongTimer" id="BPMNEdge_veryLongTimer">
+        <omgdi:waypoint x="330.0" y="190.0"></omgdi:waypoint>
+        <omgdi:waypoint x="342.0" y="190.0"></omgdi:waypoint>
+        <omgdi:waypoint x="342.0" y="110.0"></omgdi:waypoint>
+        <omgdi:waypoint x="380.0" y="112.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

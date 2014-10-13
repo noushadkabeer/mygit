@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Definition of new Model -->
+<model name="mcwf:workflowmodel"
+    xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+    <!-- Optional meta-data about the model -->
+    <description>MyCo Workflow Model</description>
+    <author>Noushad Kabeer</author>
+    <version>1.0</version>
+
+    <!-- Imports are required to allow references to definitions in other models -->
+    <imports>
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+        <import uri="http://www.alfresco.org/model/bpm/1.0" prefix="bpm" />
+    </imports>
+
+    <!-- Introduction of new namespaces defined by this model -->
+    <namespaces>
+        <namespace uri="http://www.myco.com/model/workflow/1.0"
+            prefix="mcwf" />
+    </namespaces>
+
+    <types>
+        <type name="mcwf:submitHelloWorldTask">
+            <parent>bpm:startTask</parent>
+            <properties>
+                <property name="mcwf:helloName">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <multiple>false</multiple>
+                </property>
+            </properties>
+        </type>        
+    </types>
+</model>
